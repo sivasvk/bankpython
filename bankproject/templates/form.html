@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+</head>
+<body>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form action="" method = "POST" id="my_form">
+        <h2>Customer form</h2>
+
+        {% csrf_token %}<br>
+        {% for field in form %}<br>
+
+        <label class="form-label">{{field.label}}</label>
+        
+        {{field}}
+        <br>
+        {% endfor %}
+
+        <input type="submit" value="submit" class ="btn btn-primary">
+    </form><br>
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <input type="submit" value="Logout">
+    </form>
+    
+    <br>
+    
+    <script>
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+
+
+
+        let district_field = document.getElementById("id_district")
+        let branch_field = document.getElementById("id_branch")
+        
+        district_field.addEventListener("change", pickState)
+        function pickState(e){
+            district_id = e.target.value
+            const data = { user_id: district_id}
+            let url = " {% url 'branches' %} "
+
+fetch(url, {
+  method: 'POST', // or 'PUT'
+  headers: {
+    'Content-Type': 'application/json',
+    'X-CSRFToken': csrftoken
+  },
+  body: JSON.stringify(data),
+})
+.then(response => response.json())
+.then(data => {
+  console.log('Success:', data[0]['name']);
+ 
+  branch_field.innerHTML = `<option value = "" selescted>---------------</option>`
+  for(let i = 0; i<data.length; i++){
+      branch_field.innerHTML += `<option value = "${data[i]["id"]}" selescted>${data[i]["name"]}</option>`
+
+  }
+})
+.catch((error) => {
+  console.error('Error:', error);
+});
+
+        }
+
+
+
+
+
+
+        let input = document.getElementById("id_name")
+        let select = document.getElementsByTagName("select")
+        console.log(select)
+
+        input.classList.add("form-control")
+
+        for(let i = 0; i <select.length; i++){
+            select[i].classList.add("form-select")
+        }
+    </script>
+
+
+
+</body>
+</html>
